@@ -1,0 +1,3 @@
+/home/kevin/Desktop/LegolasTrainer2/CMakeFiles/rebuild_cache.dir
+/home/kevin/Desktop/LegolasTrainer2/CMakeFiles/LegoTrain.dir
+/home/kevin/Desktop/LegolasTrainer2/CMakeFiles/edit_cache.dir
