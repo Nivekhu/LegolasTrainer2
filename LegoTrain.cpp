@@ -81,6 +81,14 @@ int main(int argc, const char *argv[]){
 	Mat frame;
 	for(;;){
 		cap >> frame;
+
+		//clone the current frame
+		Mat original = frame;
+		
+		//Convert the current frame to greyscale
+		Mat gray;
+		cvtColor(frame, gray, COLOR_RGB2GRAY);
+
 		// Show the result:
 		imshow("Legolas Trainer", frame);
 		// And display it:
