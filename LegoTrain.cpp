@@ -37,7 +37,7 @@ int main(int argc, const char *argv[]){
 	//This is to set up all the device constants so I don't have to keep typing them in
 	string fn_haar = "/home/kevin/opencv/data/haarcascades/haarcascade_frontalface_default.xml";
 	string fn_lbp = "/home/kevin/opencv/data/lbpcascades/lbpcascade_frontalface_improved.xml";
-	string fn_csv = "/home/kevin/Desktop/CameramanJohn/faces.txt";
+	string fn_csv = "/home/kevin/Desktop/LegolasTrainer2/faces.txt";
 	int deviceId = 0;
 
 	//Image and label vectors
