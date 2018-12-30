@@ -65,4 +65,30 @@ int main(int argc, const char *argv[]){
 	model->train(images, labels);
 	cout << "Done training" << endl;		
 
+	//This is the lbp cascade code
+	CascadeClassifier lbp_cascade;
+	lbp_cascade.load(fn_lbp);
+
+	//Get a handle on the video device
+	VideoCapture cap(deviceId);
+
+	if(!cap.isOpened()){
+		cerr << "Capture Device ID: " << deviceId << " cannot be opened." << endl;
+		return -1;
+	}
+
+	//Current frame of the video device
+	Mat frame;
+	for(;;){
+		cap >> frame;
+		// Show the result:
+		imshow("Legolas Trainer", frame);
+		// And display it:
+		char key = (char) waitKey(20);
+		// Exit this loop on escape:
+		if(key == 27)
+			break;
+	}
+
+	return 0;
 }
