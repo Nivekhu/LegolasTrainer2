@@ -84,11 +84,43 @@ int main(int argc, const char *argv[]){
 
 		//clone the current frame
 		Mat original = frame;
-		
+
 		//Convert the current frame to greyscale
 		Mat gray;
 		cvtColor(frame, gray, COLOR_RGB2GRAY);
 
+		//Creates a vector to store all the faces found
+		vector<Rect_<int>> faces;
+		lbp_cascade.detectMultiScale(gray, faces);
+
+		// At this point you have the position of the faces
+		for(int i = 0; i < faces.size(); i++) {
+			// Process face by face
+			Rect face_i = faces[i];
+
+			// Crop the face from the image.
+			Mat face = gray(face_i);
+			Mat face_resized;
+			cv::resize(face, face_resized, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
+
+			//Displaying face prediction
+			rectangle(original, face_i, CV_RGB(255, 0,0), 1);
+
+			//Calculate position of target
+			int pos_x = face_i.tl().x+face_i.width/2;
+			int pos_y = face_i.tl().y+face_i.height/2;
+
+			// And now put it into the image:
+			circle(original, Point(pos_x, pos_y), 1.0, CV_RGB(255,0,0), 2.0);
+
+			//Calculate the corner of the rectangle
+			int text_pos_x = std::max(face_i.tl().x - 10, 0);
+			int text_pos_y = std::max(face_i.tl().y - 10, 0);
+
+			//Display coords
+			string boxtext = format("x=%d y=%d", pos_x, pos_y);
+			putText(original, boxtext, Point(text_pos_x, text_pos_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
+		}
 		// Show the result:
 		imshow("Legolas Trainer", frame);
 		// And display it:
