@@ -92,7 +92,39 @@ int main(int argc, const char *argv[]){
 		//Creates a vector to store all the faces found
 		vector<Rect_<int>> faces;
 		lbp_cascade.detectMultiScale(gray, faces);
-
+		
+		Rect face_r; //Rightmost face
+		Rect face_l; //Leftmost face
+		
+		face_l = faces[0]; //Sets face_l to the first face since algorithm goes left>right
+		
+		//Determines the leftmost and rightmost face		
+		for(int i = 0; i < faces.size(); i++){
+			Rect face_i = faces[i];
+			if(face_l.tl().x > face_i.tl().x)
+				face_l = face_i;
+			else
+				face_r = face_i;
+		}
+		
+		if(face_r.tl().x > face_l.tl().x){
+			//Converts both faces to grayscale
+			Mat face_rg = gray(face_r);
+			Mat face_lg = gray(face_l);
+			
+			Mat face_rgr; //Right face Resized
+			Mat face_lgr; //Left face Resized
+			
+			//Crops the face from the image
+			cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
+			cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
+			
+			//Displaying face prediction
+			rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around right face
+			rectangle(original, face_l, CV_RGB(0,255,0),1); //Green outline around left face	
+		}
+		
+		/*
 		// At this point you have the position of the faces
 		for(int i = 0; i < faces.size(); i++) {
 			// Process face by face
@@ -121,6 +153,8 @@ int main(int argc, const char *argv[]){
 			string boxtext = format("x=%d y=%d", pos_x, pos_y);
 			putText(original, boxtext, Point(text_pos_x, text_pos_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 		}
+		*/
+
 		// Show the result:
 		imshow("Legolas Trainer", frame);
 		// And display it:
