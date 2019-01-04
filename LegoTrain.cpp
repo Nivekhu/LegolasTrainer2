@@ -12,6 +12,7 @@
 
 #define PI 3.14159265
 #define FaceWidth 14.2875
+#define Spring 42.3
 using namespace cv;
 using namespace cv::face;
 using namespace std;
@@ -130,7 +131,8 @@ int main(int argc, const char *argv[]){
 				double onePix = FaceWidth/((face_r.width + face_l.width)/2);            //cm per pixel
 				double lengthDrawn = ((posr_x - posl_x) * onePix)/100;                //draw distance in meters
 				double angle = atan((((posr_y - posl_y) * onePix)/100)/lengthDrawn) * 180/PI;  //angle of the draw
-				
+				double forceX = Spring * lengthDrawn * cos(angle);
+				double forceY = Spring * lengthDrawn * sin(angle);
 				//Crops the face from the image
 				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
 				cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
@@ -148,18 +150,21 @@ int main(int argc, const char *argv[]){
 				
 				//Display a line underneat the leftmost face to represent the bottom plane
 				line(original, Point(0, posl_y), Point(original.cols, posl_y), CV_RGB(255,255,0), 1.0, 8, 0);
-
+				
 				//Corners of both faces
 				int text_posr_x = std::max(face_r.tl().x - 10, 0);  //Top left x coord of the right Face
 				int text_posr_y = std::max(face_r.tl().y - 10, 0);  //Top left y coord of the right Face
 				int text_posl_x = std::max(face_l.tl().x - 10, 0);  //Top left x coord of the left Face
 				int text_posl_y = std::max(face_l.tl().y - 10, 0);  //Top left y coord of the left Face
-
+				
 				//Text to display info
 				string boxtextR = format("x=%d y=%d drawn=%f", posr_x, posr_y, lengthDrawn); //Right Face info
 				string boxtextL = format("x=%d y=%d angle=%f", posl_x, posl_y, angle); //Left Face info
-
-				//Places the text	
+				string boxtextFX = format("forceX=%f", forceX);
+				string boxtextFY = format("forceY=%f", forceY);
+				//Places the text
+				putText(original, boxtextFY, Point(10,40),FONT_HERSHEY_PLAIN,2.0,CV_RGB(0,0,0),2.0);
+				putText(original, boxtextFX, Point(10,20),FONT_HERSHEY_PLAIN,2.0,CV_RGB(0,0,0),2.0);	
 				putText(original, boxtextR, Point(text_posr_x, text_posr_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 				putText(original, boxtextL, Point(text_posl_x, text_posl_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 				
