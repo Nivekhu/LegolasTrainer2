@@ -131,8 +131,8 @@ int main(int argc, const char *argv[]){
 				double onePix = FaceWidth/((face_r.width + face_l.width)/2);            //cm per pixel
 				double lengthDrawn = ((posr_x - posl_x) * onePix)/100;                //draw distance in meters
 				double angle = atan((((posr_y - posl_y) * onePix)/100)/lengthDrawn) * 180/PI;  //angle of the draw
-				double forceX = Spring * lengthDrawn * cos(angle);
-				double forceY = Spring * lengthDrawn * sin(angle);
+				double forceX = Spring * lengthDrawn * cos(angle * PI/180);
+				double forceY = -Spring * lengthDrawn * sin(angle * PI/180);
 				//Crops the face from the image
 				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
 				cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
@@ -163,8 +163,8 @@ int main(int argc, const char *argv[]){
 				string boxtextFX = format("forceX=%f", forceX);
 				string boxtextFY = format("forceY=%f", forceY);
 				//Places the text
-				putText(original, boxtextFY, Point(10,40),FONT_HERSHEY_PLAIN,2.0,CV_RGB(0,0,0),2.0);
-				putText(original, boxtextFX, Point(10,20),FONT_HERSHEY_PLAIN,2.0,CV_RGB(0,0,0),2.0);	
+				putText(original, boxtextFY, Point(10,80),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
+				putText(original, boxtextFX, Point(10,40),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);	
 				putText(original, boxtextR, Point(text_posr_x, text_posr_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 				putText(original, boxtextL, Point(text_posl_x, text_posl_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 				
