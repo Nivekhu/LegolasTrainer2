@@ -116,7 +116,17 @@ int main(int argc, const char *argv[]){
 
 				Mat face_rgr; //Right face Resized
 				Mat face_lgr; //Left face Resized
+	
+				//Center point for each face
+				int posr_x = face_r.tl().x+face_r.width/2;   //Center X position of the Right face
+				int posr_y = face_r.tl().y+face_r.height/2;  //Center Y position of the Right face
+				int posl_x = face_l.tl().x+face_l.width/2;   //Center X position of the Left face
+				int posl_y = face_l.tl().y+face_l.height/2;  //Center Y position of the Left face
 
+				//Variables I need
+				double onePix = 14.2875/((face_r.width + face_l.width)/2);
+				double lengthDrawn = ((posr_x - posl_x) * onePix)/100; //In meters
+				
 				//Crops the face from the image
 				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
 				cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
@@ -124,13 +134,7 @@ int main(int argc, const char *argv[]){
 				//Displaying face prediction
 				rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around right face
 				rectangle(original, face_l, CV_RGB(0,255,0),1); //Green outline around left face	
-
-				//Center point for each face
-				int posr_x = face_r.tl().x+face_r.width/2;   //Center X position of the Right face
-				int posr_y = face_r.tl().y+face_r.height/2;  //Center Y position of the Right face
-				int posl_x = face_l.tl().x+face_l.width/2;   //Center X position of the Left face
-				int posl_y = face_l.tl().y+face_l.height/2;  //Center Y position of the Left face
-
+				
 				//Display a dot at the center of the faces
 				circle(original, Point(posr_x, posr_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
 				circle(original, Point(posl_x, posl_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
@@ -142,12 +146,13 @@ int main(int argc, const char *argv[]){
 				int text_posl_y = std::max(face_l.tl().y - 10, 0);  //Top left y coord of the left Face
 
 				//Text to display info
-				string boxtextR = format("x=%d y=%d", posr_x, posr_y); //Right Face info
+				string boxtextR = format("x=%d y=%d drawn=%f", posr_x, posr_y, lengthDrawn); //Right Face info
 				string boxtextL = format("x=%d y=%d", posl_x, posl_y); //Left Face info
 
 				//Places the text	
 				putText(original, boxtextR, Point(text_posr_x, text_posr_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 				putText(original, boxtextL, Point(text_posl_x, text_posl_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
+				
 			}
 		}
 
