@@ -95,8 +95,8 @@ int main(int argc, const char *argv[]){
 
 		Rect face_r; //Rightmost face
 		Rect face_l; //Leftmost face
-		
-		if(faces.size())
+
+		if(faces.size()) //Makes sure that it only sets the face if there are faces
 			face_l = faces[0]; //Sets face_l to the first face since algorithm goes left>right
 
 		//Determines the leftmost and rightmost face		
@@ -108,7 +108,7 @@ int main(int argc, const char *argv[]){
 				face_r = face_i;
 		}
 
-		if(faces.size()){	
+		if(faces.size()){
 			if(face_r.tl().x >= face_l.tl().x){
 				//Converts both faces to grayscale
 				Mat face_rg = gray(face_r);
@@ -124,47 +124,41 @@ int main(int argc, const char *argv[]){
 				//Displaying face prediction
 				rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around right face
 				rectangle(original, face_l, CV_RGB(0,255,0),1); //Green outline around left face	
+
+				//Center point for each face
+				int posr_x = face_r.tl().x+face_r.width/2;   //Center X position of the Right face
+				int posr_y = face_r.tl().y+face_r.height/2;  //Center Y position of the Right face
+				int posl_x = face_l.tl().x+face_l.width/2;   //Center X position of the Left face
+				int posl_y = face_l.tl().y+face_l.height/2;  //Center Y position of the Left face
+
+				//Display a dot at the center of the faces
+				circle(original, Point(posr_x, posr_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
+				circle(original, Point(posl_x, posl_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
+
+				//Corners of both faces
+				int text_posr_x = std::max(face_r.tl().x - 10, 0);  //Top left x coord of the right Face
+				int text_posr_y = std::max(face_r.tl().y - 10, 0);  //Top left y coord of the right Face
+				int text_posl_x = std::max(face_l.tl().x - 10, 0);  //Top left x coord of the left Face
+				int text_posl_y = std::max(face_l.tl().y - 10, 0);  //Top left y coord of the left Face
+
+				//Text to display info
+				string boxtextR = format("x=%d y=%d", posr_x, posr_y); //Right Face info
+				string boxtextL = format("x=%d y=%d", posl_x, posl_y); //Left Face info
+
+				//Places the text	
+				putText(original, boxtextR, Point(text_posr_x, text_posr_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
+				putText(original, boxtextL, Point(text_posl_x, text_posl_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 			}
 		}
-		/*
-		// At this point you have the position of the faces
-		for(int i = 0; i < faces.size(); i++) {
-// Process face by face
-Rect face_i = faces[i];
 
-// Crop the face from the image.
-Mat face = gray(face_i);
-Mat face_resized;
-cv::resize(face, face_resized, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
-
-//Displaying face prediction
-rectangle(original, face_i, CV_RGB(255, 0,0), 1);
-
-//Calculate position of target
-int pos_x = face_i.tl().x+face_i.width/2;
-int pos_y = face_i.tl().y+face_i.height/2;
-
-// And now put it into the image:
-circle(original, Point(pos_x, pos_y), 1.0, CV_RGB(255,0,0), 2.0);
-
-//Calculate the corner of the rectangle
-int text_pos_x = std::max(face_i.tl().x - 10, 0);
-int text_pos_y = std::max(face_i.tl().y - 10, 0);
-
-//Display coords
-string boxtext = format("x=%d y=%d", pos_x, pos_y);
-putText(original, boxtext, Point(text_pos_x, text_pos_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
-}
-*/
-
-// Show the result:
-imshow("Legolas Trainer", frame);
-// And display it:
-char key = (char) waitKey(20);
-// Exit this loop on escape:
-if(key == 27)
-	break;
+		// Show the result:
+		imshow("Legolas Trainer", frame);
+		// And display it:
+		char key = (char) waitKey(20);
+		// Exit this loop on escape:
+		if(key == 27)
+			break;
 	}
 
-return 0;
+	return 0;
 }
