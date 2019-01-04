@@ -92,12 +92,13 @@ int main(int argc, const char *argv[]){
 		//Creates a vector to store all the faces found
 		vector<Rect_<int>> faces;
 		lbp_cascade.detectMultiScale(gray, faces);
-		
+
 		Rect face_r; //Rightmost face
 		Rect face_l; //Leftmost face
 		
-		face_l = faces[0]; //Sets face_l to the first face since algorithm goes left>right
-		
+		if(faces.size())
+			face_l = faces[0]; //Sets face_l to the first face since algorithm goes left>right
+
 		//Determines the leftmost and rightmost face		
 		for(int i = 0; i < faces.size(); i++){
 			Rect face_i = faces[i];
@@ -106,63 +107,64 @@ int main(int argc, const char *argv[]){
 			else
 				face_r = face_i;
 		}
-		
-		if(face_r.tl().x > face_l.tl().x){
-			//Converts both faces to grayscale
-			Mat face_rg = gray(face_r);
-			Mat face_lg = gray(face_l);
-			
-			Mat face_rgr; //Right face Resized
-			Mat face_lgr; //Left face Resized
-			
-			//Crops the face from the image
-			cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
-			cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
-			
-			//Displaying face prediction
-			rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around right face
-			rectangle(original, face_l, CV_RGB(0,255,0),1); //Green outline around left face	
+
+		if(faces.size()){	
+			if(face_r.tl().x >= face_l.tl().x){
+				//Converts both faces to grayscale
+				Mat face_rg = gray(face_r);
+				Mat face_lg = gray(face_l);
+
+				Mat face_rgr; //Right face Resized
+				Mat face_lgr; //Left face Resized
+
+				//Crops the face from the image
+				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
+				cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
+
+				//Displaying face prediction
+				rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around right face
+				rectangle(original, face_l, CV_RGB(0,255,0),1); //Green outline around left face	
+			}
 		}
-		
 		/*
 		// At this point you have the position of the faces
 		for(int i = 0; i < faces.size(); i++) {
-			// Process face by face
-			Rect face_i = faces[i];
+// Process face by face
+Rect face_i = faces[i];
 
-			// Crop the face from the image.
-			Mat face = gray(face_i);
-			Mat face_resized;
-			cv::resize(face, face_resized, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
+// Crop the face from the image.
+Mat face = gray(face_i);
+Mat face_resized;
+cv::resize(face, face_resized, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
 
-			//Displaying face prediction
-			rectangle(original, face_i, CV_RGB(255, 0,0), 1);
+//Displaying face prediction
+rectangle(original, face_i, CV_RGB(255, 0,0), 1);
 
-			//Calculate position of target
-			int pos_x = face_i.tl().x+face_i.width/2;
-			int pos_y = face_i.tl().y+face_i.height/2;
+//Calculate position of target
+int pos_x = face_i.tl().x+face_i.width/2;
+int pos_y = face_i.tl().y+face_i.height/2;
 
-			// And now put it into the image:
-			circle(original, Point(pos_x, pos_y), 1.0, CV_RGB(255,0,0), 2.0);
+// And now put it into the image:
+circle(original, Point(pos_x, pos_y), 1.0, CV_RGB(255,0,0), 2.0);
 
-			//Calculate the corner of the rectangle
-			int text_pos_x = std::max(face_i.tl().x - 10, 0);
-			int text_pos_y = std::max(face_i.tl().y - 10, 0);
+//Calculate the corner of the rectangle
+int text_pos_x = std::max(face_i.tl().x - 10, 0);
+int text_pos_y = std::max(face_i.tl().y - 10, 0);
 
-			//Display coords
-			string boxtext = format("x=%d y=%d", pos_x, pos_y);
-			putText(original, boxtext, Point(text_pos_x, text_pos_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
-		}
-		*/
+//Display coords
+string boxtext = format("x=%d y=%d", pos_x, pos_y);
+putText(original, boxtext, Point(text_pos_x, text_pos_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
+}
+*/
 
-		// Show the result:
-		imshow("Legolas Trainer", frame);
-		// And display it:
-		char key = (char) waitKey(20);
-		// Exit this loop on escape:
-		if(key == 27)
-			break;
+// Show the result:
+imshow("Legolas Trainer", frame);
+// And display it:
+char key = (char) waitKey(20);
+// Exit this loop on escape:
+if(key == 27)
+	break;
 	}
 
-	return 0;
+return 0;
 }
