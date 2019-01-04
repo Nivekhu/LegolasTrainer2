@@ -8,7 +8,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <math.h>
 
+#define PI 3.14159265
+#define FaceWidth 14.2875
 using namespace cv;
 using namespace cv::face;
 using namespace std;
@@ -124,8 +127,9 @@ int main(int argc, const char *argv[]){
 				int posl_y = face_l.tl().y+face_l.height/2;  //Center Y position of the Left face
 
 				//Variables I need
-				double onePix = 14.2875/((face_r.width + face_l.width)/2);
-				double lengthDrawn = ((posr_x - posl_x) * onePix)/100; //In meters
+				double onePix = FaceWidth/((face_r.width + face_l.width)/2);            //cm per pixel
+				double lengthDrawn = ((posr_x - posl_x) * onePix)/100;                //draw distance in meters
+				double angle = atan((((posr_y - posl_y) * onePix)/100)/lengthDrawn) * 180/PI;  //angle of the draw
 				
 				//Crops the face from the image
 				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
@@ -153,7 +157,7 @@ int main(int argc, const char *argv[]){
 
 				//Text to display info
 				string boxtextR = format("x=%d y=%d drawn=%f", posr_x, posr_y, lengthDrawn); //Right Face info
-				string boxtextL = format("x=%d y=%d", posl_x, posl_y); //Left Face info
+				string boxtextL = format("x=%d y=%d angle=%f", posl_x, posl_y, angle); //Left Face info
 
 				//Places the text	
 				putText(original, boxtextR, Point(text_posr_x, text_posr_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
