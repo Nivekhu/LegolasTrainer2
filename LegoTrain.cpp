@@ -112,7 +112,7 @@ int main(int argc, const char *argv[]){
 		}
 
 		if(faces.size()){
-			if(face_r.tl().x >= face_l.tl().x){
+			if(face_r.tl().x > face_l.tl().x){
 				//Converts both faces to grayscale
 				Mat face_rg = gray(face_r);
 				Mat face_lg = gray(face_l);
