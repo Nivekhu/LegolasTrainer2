@@ -138,6 +138,10 @@ int main(int argc, const char *argv[]){
 				//Display a dot at the center of the faces
 				circle(original, Point(posr_x, posr_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
 				circle(original, Point(posl_x, posl_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
+				
+				//Display a line between the faces
+				line(original, Point(posr_x, posr_y), Point(posl_x, posl_y), CV_RGB(255,255,0), 1.0, 8, 0);
+
 
 				//Corners of both faces
 				int text_posr_x = std::max(face_r.tl().x - 10, 0);  //Top left x coord of the right Face
