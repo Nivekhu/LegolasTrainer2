@@ -76,8 +76,8 @@ int main(int argc, const char *argv[]){
 	//This is the lbp cascade code
 	CascadeClassifier lbp_cascade;
 	lbp_cascade.load(fn_lbp);
-	
-	
+
+
 
 	//Get a handle on the video device
 	VideoCapture cap(deviceId);
@@ -126,51 +126,59 @@ int main(int argc, const char *argv[]){
 
 				Mat face_rgr; //Right face Resized
 				Mat face_lgr; //Left face Resized
-	
+
 				//Center point for each face
 				int posr_x = face_r.tl().x+face_r.width/2;   //Center X position of the Right face
 				int posr_y = face_r.tl().y+face_r.height/2;  //Center Y position of the Right face
 				int posl_x = face_l.tl().x+face_l.width/2;   //Center X position of the Left face
 				int posl_y = face_l.tl().y+face_l.height/2;  //Center Y position of the Left face
-				
+
 				//Variables I need
 				double xDiff = posr_x - posl_x;
 				double yDiff = posr_y - posl_y;
 				double onePix = FACEWIDTH/((face_r.width + face_l.width)/2);                   //cm per pixel
-				double lengthDrawn = (sqrt(pow(xDiff,2.0) + pow(yDiff,2.0)) * onePix)/100;                         //draw distance in meters
-				double angle = atan(((yDiff * onePix)/100)/((xDiff * onePix)/100)) * 180/PI;  //angle of the draw
+				double lengthDrawn = (sqrt(pow(xDiff,2.0) + pow(yDiff,2.0)) * onePix)/100;     //draw distance in meters
+				double angle = -atan(((yDiff * onePix)/100)/((xDiff * onePix)/100)) * 180/PI;   //angle of the draw
 				double forceX = SPRING * lengthDrawn * cos(angle * PI/180);                    //Force in the X direction 
-				double forceY = (-SPRING * lengthDrawn * sin(angle * PI/180))-(GRAVITY * MASS);//Force in the Y direction
+				double forceY =(SPRING * lengthDrawn * sin(angle * PI/180)) - (GRAVITY * MASS);//Force in the Y direction
+
+
+				//Crops the face from the image
+				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
+				cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);	
+
+				//Display a rectangle over each face
+				rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around the right face	
 				rectangle(original, face_l, CV_RGB(0,255,0),1); //Green outline around left face	
-				
+
 				//Display a dot at the center of the faces
 				circle(original, Point(posr_x, posr_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
 				circle(original, Point(posl_x, posl_y), 1.0, CV_RGB(0,0,255), 2.0); //Creates a blue dot on the center of the face
-				
+
 				//Display a line between the faces
 				line(original, Point(posr_x, posr_y), Point(posl_x, posl_y), CV_RGB(255,255,0), 1.0, 8, 0);
-				
+
 				//Display a line underneat the leftmost face to represent the bottom plane
 				line(original, Point(0, posl_y), Point(original.cols, posl_y), CV_RGB(255,255,0), 1.0, 8, 0);
-				
+
 				//Corners of both faces
 				int text_posr_x = std::max(face_r.tl().x - 10, 0);  //Top left x coord of the right Face
 				int text_posr_y = std::max(face_r.tl().y - 10, 0);  //Top left y coord of the right Face
 				int text_posl_x = std::max(face_l.tl().x - 10, 0);  //Top left x coord of the left Face
 				int text_posl_y = std::max(face_l.tl().y - 10, 0);  //Top left y coord of the left Face
-				
+
 				//Text to display info
 				string boxtextR = format("x=%d y=%d drawn=%f", posr_x, posr_y, lengthDrawn); //Right Face info
 				string boxtextL = format("x=%d y=%d angle=%f", posl_x, posl_y, angle); //Left Face info
 				string boxtextFX = format("forceX=%f", forceX);
 				string boxtextFY = format("forceY=%f", forceY);
-				
+
 				//Places the text
 				putText(original, boxtextFY, Point(10,80),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
 				putText(original, boxtextFX, Point(10,40),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);	
 				putText(original, boxtextR, Point(text_posr_x, text_posr_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
 				putText(original, boxtextL, Point(text_posl_x, text_posl_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
-				
+
 			}
 		}
 
