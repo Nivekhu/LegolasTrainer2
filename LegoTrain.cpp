@@ -11,8 +11,12 @@
 #include <math.h>
 
 #define PI 3.14159265
-#define FaceWidth 14.2875
-#define Spring 42.3
+#define FACEWIDTH 14.2875
+#define SPRING 42.3
+#define MASS 0.0335
+#define GRAVITY 9.8
+#define HEIGHT 1.3462
+
 using namespace cv;
 using namespace cv::face;
 using namespace std;
@@ -72,6 +76,8 @@ int main(int argc, const char *argv[]){
 	//This is the lbp cascade code
 	CascadeClassifier lbp_cascade;
 	lbp_cascade.load(fn_lbp);
+	
+	
 
 	//Get a handle on the video device
 	VideoCapture cap(deviceId);
@@ -126,19 +132,15 @@ int main(int argc, const char *argv[]){
 				int posr_y = face_r.tl().y+face_r.height/2;  //Center Y position of the Right face
 				int posl_x = face_l.tl().x+face_l.width/2;   //Center X position of the Left face
 				int posl_y = face_l.tl().y+face_l.height/2;  //Center Y position of the Left face
-
+				
 				//Variables I need
-				double onePix = FaceWidth/((face_r.width + face_l.width)/2);            //cm per pixel
-				double lengthDrawn = ((posr_x - posl_x) * onePix)/100;                //draw distance in meters
-				double angle = atan((((posr_y - posl_y) * onePix)/100)/lengthDrawn) * 180/PI;  //angle of the draw
-				double forceX = Spring * lengthDrawn * cos(angle * PI/180);
-				double forceY = -Spring * lengthDrawn * sin(angle * PI/180);
-				//Crops the face from the image
-				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
-				cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
-
-				//Displaying face prediction
-				rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around right face
+				double xDiff = posr_x - posl_x;
+				double yDiff = posr_y - posl_y;
+				double onePix = FACEWIDTH/((face_r.width + face_l.width)/2);                   //cm per pixel
+				double lengthDrawn = (sqrt(pow(xDiff,2.0) + pow(yDiff,2.0)) * onePix)/100;                         //draw distance in meters
+				double angle = atan(((yDiff * onePix)/100)/((xDiff * onePix)/100)) * 180/PI;  //angle of the draw
+				double forceX = SPRING * lengthDrawn * cos(angle * PI/180);                    //Force in the X direction 
+				double forceY = (-SPRING * lengthDrawn * sin(angle * PI/180))-(GRAVITY * MASS);//Force in the Y direction
 				rectangle(original, face_l, CV_RGB(0,255,0),1); //Green outline around left face	
 				
 				//Display a dot at the center of the faces
@@ -162,6 +164,7 @@ int main(int argc, const char *argv[]){
 				string boxtextL = format("x=%d y=%d angle=%f", posl_x, posl_y, angle); //Left Face info
 				string boxtextFX = format("forceX=%f", forceX);
 				string boxtextFY = format("forceY=%f", forceY);
+				
 				//Places the text
 				putText(original, boxtextFY, Point(10,80),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
 				putText(original, boxtextFX, Point(10,40),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);	
