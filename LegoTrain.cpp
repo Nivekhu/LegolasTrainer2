@@ -78,8 +78,6 @@ int main(int argc, const char *argv[]){
 	CascadeClassifier lbp_cascade;
 	lbp_cascade.load(fn_lbp);
 
-
-
 	//Get a handle on the video device
 	VideoCapture cap(deviceId);
 
@@ -138,7 +136,7 @@ int main(int argc, const char *argv[]){
 				double forceY =(SPRING * lengthDrawn * sin(angle * PI/180)) - (GRAVITY * MASS);             //Force in the Y direction
 				double velX = sqrt(forceX/(0.5*MASS));                                                      //Initial velocity in the X direction
 				double velY = sqrt(forceY/(0.5*MASS));							    //Initial velocity in the Y direction
-				double airTime; 
+				double airTime = (velY + sqrt(velY * velY - 4 * 0.5 * GRAVITY * HEIGHT)) / (2 * GRAVITY);   //Quadratic for flight time		
 
 				//Display a rectangle over each face
 				rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around the right face	
@@ -167,8 +165,9 @@ int main(int argc, const char *argv[]){
 				string boxtextFY = format("forceY=%f", forceY);
 				string boxtextVX = format("VelocityX=%f",velX);
 				string boxtextVY = format("VelocityY=%f",velY);
-
-				//Places the text
+				string boxtextAir = format("Airtime=%f", airTime);
+				//Places the text	
+				putText(original, boxtextAir, Point(10,200), FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
 				putText(original, boxtextVY, Point(10,160), FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
 				putText(original, boxtextVX, Point(10,120), FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
 				putText(original, boxtextFY, Point(10,80),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
