@@ -16,6 +16,7 @@
 #define MASS 0.0335
 #define GRAVITY 9.8
 #define HEIGHT 1.3462
+#define STRING 0.28
 
 using namespace cv;
 using namespace cv::face;
@@ -119,13 +120,7 @@ int main(int argc, const char *argv[]){
 		}
 
 		if(faces.size()){
-			if(face_r.tl().x > face_l.tl().x){
-				//Converts both faces to grayscale
-				Mat face_rg = gray(face_r);
-				Mat face_lg = gray(face_l);
-
-				Mat face_rgr; //Right face Resized
-				Mat face_lgr; //Left face Resized
+			if((face_r.tl().x > face_l.tl().x)){
 
 				//Center point for each face
 				int posr_x = face_r.tl().x+face_r.width/2;   //Center X position of the Right face
@@ -135,17 +130,15 @@ int main(int argc, const char *argv[]){
 
 				//Variables I need
 				double xDiff = posr_x - posl_x;
-				double yDiff = posr_y - posl_y;
-				double onePix = FACEWIDTH/((face_r.width + face_l.width)/2);                   //cm per pixel
-				double lengthDrawn = (sqrt(pow(xDiff,2.0) + pow(yDiff,2.0)) * onePix)/100;     //draw distance in meters
-				double angle = -atan(((yDiff * onePix)/100)/((xDiff * onePix)/100)) * 180/PI;   //angle of the draw
-				double forceX = SPRING * lengthDrawn * cos(angle * PI/180);                    //Force in the X direction 
-				double forceY =(SPRING * lengthDrawn * sin(angle * PI/180)) - (GRAVITY * MASS);//Force in the Y direction
-
-
-				//Crops the face from the image
-				cv::resize(face_rg, face_rgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);
-				cv::resize(face_lg, face_lgr, Size(im_width, im_height), 1.0, 1.0, INTER_CUBIC);	
+				double yDiff = posr_y - posl_y;	
+				double onePix = FACEWIDTH/((face_r.width + face_l.width)/2);                                //cm per pixel
+				double lengthDrawn = (sqrt(pow(xDiff,2.0) + pow(yDiff,2.0)) * onePix/100)-STRING;           //draw distance in meters
+				double angle = -atan(((yDiff * onePix)/100)/((xDiff * onePix)/100)) * 180/PI;               //angle of the draw
+				double forceX = SPRING * lengthDrawn * cos(angle * PI/180);                                 //Force in the X direction 
+				double forceY =(SPRING * lengthDrawn * sin(angle * PI/180)) - (GRAVITY * MASS);             //Force in the Y direction
+				double velX = sqrt(forceX/(0.5*MASS));                                                      //Initial velocity in the X direction
+				double velY = sqrt(forceY/(0.5*MASS));							    //Initial velocity in the Y direction
+				double airTime; 
 
 				//Display a rectangle over each face
 				rectangle(original, face_r, CV_RGB(255,0,0),1); //Red outline around the right face	
@@ -172,8 +165,12 @@ int main(int argc, const char *argv[]){
 				string boxtextL = format("x=%d y=%d angle=%f", posl_x, posl_y, angle); //Left Face info
 				string boxtextFX = format("forceX=%f", forceX);
 				string boxtextFY = format("forceY=%f", forceY);
+				string boxtextVX = format("VelocityX=%f",velX);
+				string boxtextVY = format("VelocityY=%f",velY);
 
 				//Places the text
+				putText(original, boxtextVY, Point(10,160), FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
+				putText(original, boxtextVX, Point(10,120), FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
 				putText(original, boxtextFY, Point(10,80),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);
 				putText(original, boxtextFX, Point(10,40),FONT_HERSHEY_PLAIN,4.0,CV_RGB(0,0,0),2.0);	
 				putText(original, boxtextR, Point(text_posr_x, text_posr_y),FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255,0,0), 2.0);
@@ -183,7 +180,7 @@ int main(int argc, const char *argv[]){
 		}
 
 		// Show the result:
-		imshow("Legolas Trainer", frame);
+		imshow("Legolas Trainer", original);
 		// And display it:
 		char key = (char) waitKey(20);
 		// Exit this loop on escape:
